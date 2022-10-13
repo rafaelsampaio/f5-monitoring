@@ -1,0 +1,9 @@
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
+**/grafana/*
+**/prometheus/*
+**/logstash/*
+**/elasticsearch/*
+*.lock
+*-private.yaml
