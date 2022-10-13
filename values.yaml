@@ -204,14 +204,14 @@ grafana:
   dashboards:
     nginx:
       nginxplus:
-        url: https://raw.githubusercontent.com/rafaelsampaio/dashboards/main/grafana/NGINXPlusICDashboard.json
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXPlusICDashboard.json
         datasource: Prometheus
       nginxoss:
-        url: https://raw.githubusercontent.com/rafaelsampaio/dashboards/main/grafana/NGINXOSSICDashboard.json
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXOSSICDashboard.json
         datasource: Prometheus
     security:
       f5waf:
-        url: https://raw.githubusercontent.com/rafaelsampaio/dashboards/main/grafana/WAFDashboard.json
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/WAFDashboard.json
         datasource: Elasticsearch-WAF
   service:
     type: NodePort
