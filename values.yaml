@@ -4,13 +4,19 @@ logstash:
   service:
     type: ClusterIP
     ports:
-      - name: waf-events
+      - name: f5-waf
         port: 5144
         protocol: TCP
         targetPort: 5144
+      - name: f5-ts
+        port: 8514
+        protocol: TCP
+        targetPort: 8514
   extraPorts:
-    - name: waf-events
+    - name: f5-waf
       containerPort: 5144
+    - name: f5-ts
+      containerPort: 8514
   logstashPipeline:
     f5-waf.conf: |
       input {
