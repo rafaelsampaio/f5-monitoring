@@ -1,6 +1,6 @@
 apiVersion: v2
 name: f5-monitoring
-version: 1.0.5
+version: 2.0.0
 description: A collections of tools and dashboards to monitor F5 BIG-IP and NGINX
 type: application
 keywords:
@@ -20,17 +20,17 @@ home: https://www.github.com/rafaelsampaio/f5-monitoring
 appVersion: "1.0.0"
 dependencies:
   - name: prometheus
-    version: 15.16.0
+    version: 18.1.1
     repository: https://prometheus-community.github.io/helm-charts
   - name: grafana
-    version: 6.40.4
+    version: 6.44.10
     repository: https://grafana.github.io/helm-charts
   - name: logstash
-    version: 7.17.3
+    version: 8.5.1
     repository: https://helm.elastic.co
   - name: elasticsearch
-    version: 7.17.3
+    version: 8.5.1
     repository: https://helm.elastic.co
   - name: kibana
-    version: 7.17.3
+    version: 8.5.1
     repository: https://helm.elastic.co

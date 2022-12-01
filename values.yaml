@@ -1,69 +1,3 @@
-prometheus:
-  extraScrapeConfigs: |
-
-  pushgateway:
-    enabled: false
-
-grafana:
-  persistence:
-    enabled: true
-    type: pvc
-    accessModes:
-      - ReadWriteOnce
-    size: 4Gi
-    finalizers:
-      - kubernetes.io/pvc-protection
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Prometheus
-          type: prometheus
-          url: http://dashboards-prometheus-server
-          isDefault: true
-        - name: Elasticsearch-WAF
-          type: elasticsearch
-          url: http://elasticsearch-master:9200
-          database: "waf-logs-*"
-          jsonData: 
-            esVersion: "7.17.3"
-            timeField: "@timestamp"
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: "nginx"
-          orgId: 1
-          folder: "NGINX"
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/nginx
-        - name: "security"
-          orgId: 1
-          folder: "Security"
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/security
-  dashboards:
-    nginx:
-      nginxplus:
-        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXPlusICDashboard.json
-        datasource: Prometheus
-      nginxoss:
-        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXOSSICDashboard.json
-        datasource: Prometheus
-    security:
-      f5waf:
-        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/WAFDashboard.json
-        datasource: Elasticsearch-WAF
-  service:
-    type: NodePort
-    nodePort: 32517
-
 logstash:
   image: "docker.elastic.co/logstash/logstash-oss"
   antiAffinity: soft
@@ -78,7 +12,7 @@ logstash:
     - name: waf-events
       containerPort: 5144
   logstashPipeline:
-    waf.conf: |
+    f5-waf.conf: |
       input {
         syslog {
           port => 5144
@@ -209,7 +143,86 @@ logstash:
       output {
         elasticsearch {
           hosts => ["http://elasticsearch-master:9200"]
-          index => "waf-logs-%{+YYYY.MM.dd}"
+          index => "f5-waf-logs-%{+YYYY.MM.dd}"
+        }
+      }
+    f5-ts.conf: |
+      input {
+        http {
+          port => 8514
+        }
+      }
+      filter {
+        json {
+          source => "message"
+        }
+        if "systemInfo" in [telemetryEventCategory] {
+
+        }
+        if "LTM" in [telemetryEventCategory] {
+
+        }
+        if "AFM" in [telemetryEventCategory] {
+
+        }
+        if "ASM" in [telemetryEventCategory] {
+
+        }
+        if "APM" in [telemetryEventCategory] {
+
+        }
+        if "ihealthInfo" in [telemetryEventCategory] {
+
+        }
+        if "AVR" in [telemetryEventCategory] {
+
+        }
+      }
+      output {
+        stdout {
+          codec => json
+        }
+        if "systemInfo" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-stats-%{+YYYY.MM.dd}"
+          }
+        }
+        if "LTM" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-ltm-%{+YYYY.MM.dd}"
+          }
+        }
+        if "AFM" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-afm-%{+YYYY.MM.dd}"
+          }
+        }
+        if "ASM" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-asm-%{+YYYY.MM.dd}"
+          }
+        }
+        if "APM" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-apm-%{+YYYY.MM.dd}"
+          }
+        }
+        if "ihealthInfo" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-ihealth-%{+YYYY.MM.dd}"
+          }
+        }
+        if "AVR" in [telemetryEventCategory] {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            index => "f5-ts-events-avr-%{+YYYY.MM.dd}"
+          }
         }
       }
 
@@ -234,4 +247,106 @@ kibana:
             #!/bin/bash
             KB_URL=http://localhost:5601
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"waf-logs-*"}},{"objects":[{"type":"index-pattern","id":"f5-ts","attributes":{"title":"f5-ts","timeFieldName":"system.systemTimestamp"}}]}'
+            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*","timeFieldName":"@timestamp"}}]}'
+
+prometheus:
+  extraScrapeConfigs: |
+
+  pushgateway:
+    enabled: false
+
+grafana:
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes:
+      - ReadWriteOnce
+    size: 4Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://dashboards-prometheus-server
+          isDefault: true
+        - name: Elasticsearch-WAF
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-waf-logs-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+        - name: Elasticsearch-TS-stats
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-ts-stats-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+        - name: Elasticsearch-TS-events-ltm
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-ts-events-ltm-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+        - name: Elasticsearch-TS-events-afm
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-ts-events-afm-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+        - name: Elasticsearch-TS-events-asm
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-ts-events-asm-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+        - name: Elasticsearch-TS-events-avr
+          type: elasticsearch
+          url: http://elasticsearch-master:9200
+          database: "f5-ts-events-avr-*"
+          jsonData:
+            esVersion: "8.0+"
+            timeField: "@timestamp"
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "nginx"
+          orgId: 1
+          folder: "NGINX"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/nginx
+        - name: "security"
+          orgId: 1
+          folder: "Security"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/security
+  dashboards:
+    nginx:
+      nginxplus:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXPlusICDashboard.json
+        datasource: Prometheus
+      nginxoss:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/NGINXOSSICDashboard.json
+        datasource: Prometheus
+    security:
+      f5waf:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/WAFDashboard.json
+        datasource: Elasticsearch-WAF
+  service:
+    type: NodePort
+    nodePort: 32517
+
