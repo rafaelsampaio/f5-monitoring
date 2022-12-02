@@ -17,7 +17,6 @@ keywords:
   - elasticsearch
   - kibana
 home: https://www.github.com/rafaelsampaio/f5-monitoring
-appVersion: "1.0.0"
 dependencies:
   - name: prometheus
     version: 18.1.1
@@ -25,12 +24,11 @@ dependencies:
   - name: grafana
     version: 6.44.10
     repository: https://grafana.github.io/helm-charts
-  - name: logstash
-    version: 8.5.1
+  - name: eck-operator
+    version: 2.5.0
     repository: https://helm.elastic.co
-  - name: elasticsearch
-    version: 8.5.1
-    repository: https://helm.elastic.co
-  - name: kibana
-    version: 8.5.1
-    repository: https://helm.elastic.co
+maintainers:
+  - name: Rafael Sampaio
+    email: rafael.sampaio@live.com
+    url: https://github.com/rafaelsampaio
+appVersion: "1.0.0"
