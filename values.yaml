@@ -283,42 +283,42 @@ grafana:
           url: http://elasticsearch-master:9200
           database: "f5-waf-logs-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-stats
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-stats-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-ltm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-ltm-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-afm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-afm-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-asm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-asm-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-avr
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-avr-*"
           jsonData:
-            esVersion: "8.0+"
+            esVersion: "7.0+"
             timeField: "@timestamp"
   dashboardProviders:
     dashboardproviders.yaml:

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: f5-monitoring
-version: 2.0.0
+version: 1.0.6
 description: A collections of tools and dashboards to monitor F5 BIG-IP and NGINX
 type: application
 keywords:
@@ -24,8 +24,14 @@ dependencies:
   - name: grafana
     version: 6.44.10
     repository: https://grafana.github.io/helm-charts
-  - name: eck-operator
-    version: 2.5.0
+  - name: logstash
+    version: 7.17.3
+    repository: https://helm.elastic.co
+  - name: elasticsearch
+    version: 7.17.3
+    repository: https://helm.elastic.co
+  - name: kibana
+    version: 7.17.3
     repository: https://helm.elastic.co
 maintainers:
   - name: Rafael Sampaio
