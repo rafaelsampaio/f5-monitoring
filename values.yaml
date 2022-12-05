@@ -162,16 +162,17 @@ logstash:
           json {
               source => "message"
           }
+
           if "systemInfo" in [telemetryEventCategory] {
               date {
-                  match => [ "system.systemTimestamp","MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  match => [ "[system][systemTimestamp]", "MMM d, yyyy '@' HH:mm:ss.SSS" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
           }
-          if "LTM" in [telemetryEventCategory] {
+          else if "LTM" in [telemetryEventCategory] {
               date {
-                  match => [ "event_timestamp","MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  match => [ "[event_timestamp]", "MMM d, yyyy '@' HH:mm:ss.SSS" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -193,9 +194,9 @@ logstash:
                   target => "[client_geo]"
               }
           }
-          if "AFM" in [telemetryEventCategory] {
+          else if "AFM" in [telemetryEventCategory] {
               date {
-                  match => [ "date_time","MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  match => [ "[date_time]","MMM d, yyyy '@' HH:mm:ss.SSS" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -220,9 +221,9 @@ logstash:
                   target => "[source_geo]"
               }
           }
-          if "ASM" in [telemetryEventCategory] {
+          else if "ASM" in [telemetryEventCategory] {
               date {
-                  match => [ "date_time","MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  match => [ "[date_time]","MMM d, yyyy '@' HH:mm:ss.SSS" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -253,15 +254,15 @@ logstash:
                   target => "[source_geo]"
               }
           }
-          if "APM" in [telemetryEventCategory] {
+          else if "APM" in [telemetryEventCategory] {
 
           }
-          if "ihealthInfo" in [telemetryEventCategory] {
+          else if "ihealthInfo" in [telemetryEventCategory] {
 
           }
-          if "AVR" in [telemetryEventCategory] {
+          else if "AVR" in [telemetryEventCategory] {
               date {
-                  match => [ "EOCTimestamp","UNIX" ]
+                  match => [ "[EOCTimestamp]","UNIX" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -270,10 +271,10 @@ logstash:
                       "[headers][x_forwarded_for]" => ","
                       "[headers][x_real_ip]" => ","
                   }
-                  split => {
-                      "[LatencyHistogram]" => "|"
-                  }
                   if [LatencyHistogram] {
+                      split => {
+                          "[LatencyHistogram]" => "|"
+                      }
                       split => {
                           "[LatencyHistogram][0]" => ","
                       }
@@ -584,7 +585,11 @@ logstash:
                   source => "[client_ip]"
                   target => "[client_geo]"
               }
-
+          }
+          else {
+              mutate {
+                  add_tag => [ "_eventCategory_not_defined" ]
+              }
           }
       }
       output {
