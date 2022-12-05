@@ -154,82 +154,482 @@ logstash:
       }
     f5-ts.conf: |
       input {
-        http {
-          port => 8514
-        }
+          http {
+              port => 8514
+          }
       }
       filter {
-        json {
-          source => "message"
-        }
-        if "systemInfo" in [telemetryEventCategory] {
+          json {
+              source => "message"
+          }
+          if "systemInfo" in [telemetryEventCategory] {
+              date {
+                  match => [ [system][systemTimestamp],"MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  target => "@eventTimestamp"
+                  timezone => "UTC"
+              }
+          }
+          if "LTM" in [telemetryEventCategory] {
+              date {
+                  match => [ [event_timestamp],"MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  target => "@eventTimestamp"
+                  timezone => "UTC"
+              }
+              mutate {
+                  split => {
+                      "[headers][x_forwarded_for]" => ","
+                      "[headers][x_real_ip]" => ","
+                  }
+                  convert => {
+                      "[headers][content_length]" => "integer"
+                      "[headers][x_forwarded_port]" => "integer"
+                      "[http_statcode]" => "integer"
+                      "[response_code]" => "integer"
+                      "[response_ms]" => "integer"
+                  }
+              }
+              geoip {
+                  source => "[client_ip]"
+                  target => "[client_geo]"
+              }
+          }
+          if "AFM" in [telemetryEventCategory] {
+              date {
+                  match => [ [date_time],"MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  target => "@eventTimestamp"
+                  timezone => "UTC"
+              }
+              mutate {
+                  split => {
+                      "[headers][x_forwarded_for]" => ","
+                      "[headers][x_real_ip]" => ","
+                  }
+                  convert => {
+                      "[dest_port]" => "integer"
+                      "[headers][content_length]" => "integer"
+                      "[headers][x_forwarded_port]" => "integer"
+                      "[severity]" => "integer"
+                  }
+              }
+              geoip {
+                  source => "[dest_ip]"
+                  target => "[dest_geo]"
+              }
+              geoip {
+                  source => "[source_ip]"
+                  target => "[source_geo]"
+              }
+          }
+          if "ASM" in [telemetryEventCategory] {
+              date {
+                  match => [ [date_time],"MMM d, yyyy '@' HH:mm:ss.SSS" ]
+                  target => "@eventTimestamp"
+                  timezone => "UTC"
+              }
+              date {
+                  match => [[policy_apply_date], "yyyy-MM-dd HH:mm:ss"]
+                  timezone => "UTC"
+              }
+              mutate {
+                  split => {
+                      "[headers][x_forwarded_for]" => ","
+                      "[headers][x_real_ip]" => ","
+                  }
+                  convert => {
+                      "[dest_port]" => "integer"
+                      "[headers][content_length]" => "integer"
+                      "[headers][x_forwarded_port]" => "integer"
+                      "[response_code]" => "integer"
+                      "[src_port]" => "integer"
+                      "[violation_rating]" => "integer"
+                  }
+              }
+              geoip {
+                  source => "[dest_ip]"
+                  target => "[dest_geo]"
+              }
+              geoip {
+                  source => "[source_host]"
+                  target => "[source_geo]"
+              }
+          }
+          if "APM" in [telemetryEventCategory] {
 
-        }
-        if "LTM" in [telemetryEventCategory] {
+          }
+          if "ihealthInfo" in [telemetryEventCategory] {
 
-        }
-        if "AFM" in [telemetryEventCategory] {
+          }
+          if "AVR" in [telemetryEventCategory] {
+              date {
+                  match => [ [EOCTimestamp],"UNIX" ]
+                  target => "@eventTimestamp"
+                  timezone => "UTC"
+              }
+              mutate {
+                  split => {
+                      "[headers][x_forwarded_for]" => ","
+                      "[headers][x_real_ip]" => ","
+                  }
+                  split => {
+                      "[LatencyHistogram]" => "|"
+                  }
+                  if [LatencyHistogram] {
+                      split => {
+                          "[LatencyHistogram][0]" => ","
+                      }
+                      rename => {
+                          "[LatencyHistogram][0]" => "[LatencyHistogram][values]"
+                      }
+                      split => {
+                          "[LatencyHistogram][1]" => ","
+                      }
+                      rename => {
+                          "[LatencyHistogram][0]" => "[LatencyHistogram][counts]"
+                      }
+                  }
+                  convert => {
+                      "[headers][content_length]" => "integer"
+                      "[headers][x_forwarded_port]" => "integer"
+                      "[HitCount]" => "integer"
+                      "[pid]" => "integer"
+                      "[rss]" => "integer"
+                      "[max_cpu_index]" => "integer"
+                      "[proc_id]" => "integer"
+                      "[AttackCount]" => "integer"
+                      "[AvgBadActorDetection]" => "integer"
+                      "[AvgDetection]" => "integer"
+                      "[BadActorDrops]" => "integer"
+                      "[BadActorEvents]" => "integer"
+                      "[HardwareDrops]" => "integer"
+                      "[MaxBadActorMitigation]" => "integer"
+                      "[MaxMitigation]" => "integer"
+                      "[MinBadActorMitigation]" => "integer"
+                      "[MinMitigation]" => "integer"
+                      "[SoftwareDrops]" => "integer"
+                      "[TotalEvents]" => "integer"
+                      "[WLEvents]" => "integer"
 
-        }
-        if "ASM" in [telemetryEventCategory] {
+                      "[abandoned_conns]" => "integer"
+                      "[accept_fails]" => "integer"
+                      "[active_conns]" => "integer"
+                      "[expired_conns]" => "integer"
+                      "[failed_conns]" => "integer"
+                      "[hw_cookie_valid]" => "integer"
+                      "[max_active_conns]" => "integer"
+                      "[new_conns]" => "integer"
+                      "[SoftwareDrops]" => "integer"
+                      "[TotalEvents]" => "integer"
+                      "[WLEvents]" => "integer"
 
-        }
-        if "APM" in [telemetryEventCategory] {
+                      "[AvgDetection]" => "integer"
+                      "[BadActorDrops]" => "integer"
+                      "[BadActorEvents]" => "integer"
+                      "[HardwareDrops]" => "integer"
+                      "[MaxBadActorMitigation]" => "integer"
+                      "[MaxMitigation]" => "integer"
+                      "[MinBadActorMitigation]" => "integer"
+                      "[MinMitigation]" => "integer"
+                      "[SoftwareDrops]" => "integer"
+                      "[TotalEvents]" => "integer"
+                      "[WLEvents]" => "integer"
 
-        }
-        if "ihealthInfo" in [telemetryEventCategory] {
+                      "[http_requests]" => "integer"
+                      "[http_requests_limit]" => "integer"
 
-        }
-        if "AVR" in [telemetryEventCategory] {
+                      "[AggrInterval]" => "integer"
+                      "[bd_avg_cpu_util]" => "integer"
+                      "[blade_num]" => "integer"
+                      "[max_cpu_index]" => "integer"
+                      "[SlotId]" => "integer"
+                      "[tmm_avg_cpu_util]" => "integer"
 
-        }
+                      "[enforced_entities_count]" => "integer"
+
+                      "[accepted_count]" => "integer"
+                      "[pending_highscore_count]" => "integer"
+                      "[pending_lowscore_count]" => "integer"
+
+                      "[bd_total_max_mem]" => "integer"
+                      "[bd_total_mem_allocated]" => "integer"
+                      "[bd_total_mem_used]" => "integer"
+                      "[bd_total_xml_max_mem]" => "integer"
+                      "[bd_total_xml_mem_used]" => "integer"
+                      "[swap_size]" => "integer"
+                      "[system_swap_size]" => "integer"
+                      "[tmm_memory_total]" => "integer"
+                      "[tmm_memory_used]" => "integer"
+                      "[used_swap]" => "integer"
+
+                      "[policy_changes_count]" => "integer"
+
+                      "[SourcePort]" => "integer"
+                      "[DestinationPort]" => "integer"
+
+                      "[PacketsSize]" => "integer"
+
+                      "[aborts]" => "integer"
+                      "[total_executions]" => "integer"
+
+                      "[client_bytes_in]" => "integer"
+                      "[client_bytes_out]" => "integer"
+                      "[client_concurrent_conns]" => "integer"
+                      "[client_conns]" => "integer"
+                      "[client_expired_conns]" => "integer"
+                      "[client_pkts_in]" => "integer"
+                      "[client_pkts_out]" => "integer"
+                      "[server_bytes_in]" => "integer"
+                      "[server_bytes_out]" => "integer"
+                      "[server_concurrent_conns]" => "integer"
+                      "[server_conns]" => "integer"
+                      "[server_pkts_in]" => "integer"
+                      "[server_pkts_out]" => "integer"
+
+                      "[a_reqs]" => "integer"
+                      "[aaaa_reqs]" => "integer"
+                      "[any_reqs]" => "integer"
+                      "[cname_reqs]" => "integer"
+                      "[dns64fails]" => "integer"
+                      "[dns64reqs]" => "integer"
+                      "[dns64trans]" => "integer"
+                      "[drops]" => "integer"
+                      "[fast_dns_allowed]" => "integer"
+                      "[fast_dns_drops]" => "integer"
+                      "[fast_dns_queries]" => "integer"
+                      "[fast_dns_resp_ne]" => "integer"
+                      "[fast_dns_resp_nx]" => "integer"
+                      "[fast_dns_resp_rf]" => "integer"
+                      "[fast_dns_resp_tc]" => "integer"
+                      "[fast_dns_responses]" => "integer"
+                      "[hdr_aa]" => "integer"
+                      "[hdr_ad]" => "integer"
+                      "[hdr_ra]" => "integer"
+                      "[hdr_tc]" => "integer"
+                      "[hints]" => "integer"
+                      "[hw_cache_lookups]" => "integer"
+                      "[hw_cache_responses" => "integer"
+                      "[hw_inspected]" => "integer"
+                      "[hw_malformed]" => "integer"
+                      "[malformed]" => "integer"
+                      "[malicious]" => "integer"
+                      "[mx_reqs]" => "integer"
+                      "[naptr_reqs]" => "integer"
+                      "[noerrors]" => "integer"
+                      "[ns_reqs]" => "integer"
+                      "[other_reqs]" => "integer"
+                      "[ptr_reqs]" => "integer"
+                      "[queries]" => "integer"
+                      "[r_noerror]" => "integer"
+                      "[r_nxdomain]" => "integer"
+                      "[r_refused]" => "integer"
+                      "[r_servfail]" => "integer"
+                      "[rejects]" => "integer"
+                      "[responses]" => "integer"
+                      "[soa_reqs]" => "integer"
+                      "[srv_reqs]" => "integer"
+                      "[todns]" => "integer"
+                      "[txt_reqs]" => "integer"
+
+                      "[dropped]" => "integer"
+                      "[err_cksum]" => "integer"
+                      "[err_len]" => "integer"
+                      "[err_mem]" => "integer"
+                      "[err_opt]" => "integer"
+                      "[err_proto]" => "integer"
+                      "[err_reassembled_too_long]" => "integer"
+                      "[err_rtx]" => "integer"
+                      "[reassembled]" => "integer"
+                      "[rx]" => "integer"
+                      "[rx_frag]" => "integer"
+                      "[rx_frag_dropped]" => "integer"
+                      "[tx]" => "integer"
+                      "[tx_frag]" => "integer"
+                      "[tx_frag_dropped]" => "integer"
+
+                      "[accept_fails]" => "integer"
+                      "[accepts]" => "integer"
+                      "[active_conns]" => "integer"
+                      "[expired_conns]" => "integer"
+                      "[failed_conns]" => "integer"
+                      "[max_active_conns]" => "integer"
+                      "[new_conns]" => "integer"
+                      "[rxbaddgram]" => "integer"
+                      "[rxbadsum]" => "integer"
+                      "[rxdgram]" => "integer"
+                      "[rxnosum]" => "integer"
+                      "[rxunreach]" => "integer"
+                      "[txdgram]" => "integer"
+                      "[udp_prof]" => "integer"
+
+                      "[free_ram]" => "integer"
+                      "[free_swap]" => "integer"
+                      "[other_free_ram]" => "integer"
+                      "[other_total_ram]" => "integer"
+                      "[other_used_ram]" => "integer"
+                      "[tmm_free_ram]" => "integer"
+                      "[tmm_total_ram]" => "integer"
+                      "[tmm_used_ram]" => "integer"
+                      "[total_ram]" => "integer"
+                      "[total_swap]" => "integer"
+                      "[used_ram]" => "integer"
+                      "[used_swap]" => "integer"
+
+                      "[avg_1min]" => "integer"
+                      "[rd_bytes]" => "integer"
+                      "[rd_lat_us]" => "integer"
+                      "[rd_merged]" => "integer"
+                      "[rd_ops]" => "integer"
+                      "[total_ios]" => "integer"
+                      "[wr_bytes]" => "integer"
+                      "[wr_merged]" => "integer"
+                      "[wr_ops]" => "integer"
+
+                      "[client_conn_dur]" => "integer"
+                      "[client_max_concurrent_conns]" => "integer"
+                      "[cycle_count]" => "integer"
+                      "[hw_syncookies]" => "integer"
+                      "[hw_syncookies_accepts]" => "integer"
+                      "[server_max_concurrent_conns]" => "integer"
+                      "[stress]" => "integer"
+                      "[stresscpu]" => "integer"
+                      "[syncookies]" => "integer"
+                      "[syncookies_accepts]" => "integer"
+                      "[syncookies_rejects]" => "integer"
+                      "[tot_requests]" => "integer"
+
+                      "[translation_request_failures]" => "integer"
+                      "[translation_requests]" => "integer"
+
+                      "[active_translations]" => "integer"
+                      "[backup_pool_translations]" => "integer"
+
+                      "[cpu]" => "integer"
+                      "[idle_ticks]" => "integer"
+                      "[iowait]" => "integer"
+                      "[irq]" => "integer"
+                      "[nice]" => "integer"
+                      "[softirq]" => "integer"
+                      "[system_ticks]" => "integer"
+                      "[user_ticks]" => "integer"
+
+                      "[Requests]" => "integer"
+                      "[TcDisabledRequests]" => "integer"
+                      "[TcFiltersCheckPassedRequests]" => "integer"
+                      "[TcMemoryCheckPassedRequests]" => "integer"
+                      "[TcSamplingPassedRequest]" => "integer"
+                      "[Tmm]" => "integer"
+
+                      "[bytes_in]" => "integer"
+                      "[bytes_out]" => "integer"
+
+                      "[connq_age_head]" => "integer"
+                      "[connq_age_head_max]" => "integer"
+                      "[connq_depth]" => "integer"
+                      "[connq_depth_max]" => "integer"
+                      "[pool_port]" => "integer"
+                      "[server_bytes_in]" => "integer"
+                      "[server_bytes_out]" => "integer"
+                      "[server_concurrent_conns]" => "integer"
+                      "[server_conns]" => "integer"
+                      "[server_max_concurrent_conns]" => "integer"
+                      "[server_pkts_in]" => "integer"
+                      "[server_pkts_out]" => "integer"
+                      "[transactions]" => "integer"
+
+                      "[counters_drops_in]" => "integer"
+                      "[counters_drops_out]" => "integer"
+                      "[counters_errors_in]" => "integer"
+                      "[counters_errors_out]" => "integer"
+
+                      "[ApplicationResponseTime]" => "integer"
+                      "[ClientLatencyHitCount]" => "integer"
+                      "[ClientLatencyTotal]" => "integer"
+                      "[ClientSideNetworkLatency]" => "integer"
+                      "[ClientTtfb]" => "integer"
+                      "[ClientTtfbHitcount]" => "integer"
+                      "[MaxApplicationResponseTime]" => "integer"
+                      "[MaxClientSideNetworkLatency]" => "integer"
+                      "[MaxClientTtfb]" => "integer"
+                      "[MaxRequestDuration]" => "integer"
+                      "[MaxResponseDuration]" => "integer"
+                      "[MaxServerSideNetworkLatency]" => "integer"
+                      "[MinApplicationResponseTime]" => "integer"
+                      "[MinClientSideNetworkLatency]" => "integer"
+                      "[MinClientTtfb]" => "integer"
+                      "[MinRequestDuration]" => "integer"
+                      "[MinResponseDuration]" => "integer"
+                      "[MinServerSideNetworkLatency]" => "integer"
+                      "[ResponseDuration]" => "integer"
+                      "[RequestDurationHitcount]" => "integer"
+                      "[ResponseDurationHitcount]" => "integer"
+                      "[ServerHitcount]" => "integer"
+                      "[ServerLatencyMax]" => "integer"
+                      "[ServerLatencyMin]" => "integer"
+                      "[ServerLatencyTotal]" => "integer"
+                      "[ServerSideNetworkLatency]" => "integer"
+                      "[SosApplicationResponseTime]" => "integer"
+                      "[SosClientSideNetworkLatency]" => "integer"
+                      "[SosClientTtfb]" => "integer"
+                      "[SosRequestDuration]" => "integer"
+                      "[SosResponseDuration]" => "integer"
+                      "[SosServerSideNetworkLatency]" => "integer"
+                      "[ThroughputReqTotalPerInterval]" => "integer"
+                      "[ThroughputRespMaxPerSec]" => "integer"
+                      "[ThroughputRespTotalPerInterval]" => "integer"
+                      "[TPSMax]" => "integer"
+                      "[UserSessionsConcurrentTotal]" => "integer"
+                      "[UserSessionsNewTotal]" => "integer"
+                  }
+              }
+              geoip {
+                  source => "[client_ip]"
+                  target => "[client_geo]"
+              }
+
+          }
       }
       output {
-        stdout {
-          codec => json
-        }
-        if "systemInfo" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-stats-%{+YYYY.MM.dd}"
+          if "systemInfo" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-stats-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "LTM" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-ltm-%{+YYYY.MM.dd}"
+          if "LTM" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-ltm-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "AFM" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-afm-%{+YYYY.MM.dd}"
+          if "AFM" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-afm-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "ASM" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-asm-%{+YYYY.MM.dd}"
+          if "ASM" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-asm-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "APM" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-apm-%{+YYYY.MM.dd}"
+          if "APM" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-apm-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "ihealthInfo" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-ihealth-%{+YYYY.MM.dd}"
+          if "ihealthInfo" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-ihealth-%{+YYYY.MM.dd}"
+              }
           }
-        }
-        if "AVR" in [telemetryEventCategory] {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            index => "f5-ts-events-avr-%{+YYYY.MM.dd}"
+          if "AVR" in [telemetryEventCategory] {
+              elasticsearch {
+                  hosts => ["http://elasticsearch-master:9200"]
+                  index => "f5-ts-events-avr-%{+YYYY.MM.dd}"
+              }
           }
-        }
       }
 
 elasticsearch:
