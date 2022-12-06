@@ -1,0 +1,6 @@
+- pipeline.id: f5-waf
+  path.config: "/usr/share/logstash/pipeline/f5-waf.conf"
+- pipeline.id: f5-ts
+  path.config: "/usr/share/logstash/pipeline/f5-ts.conf"
+- pipeline.id: beats
+  path.config: "/usr/share/logstash/pipeline/logstash.conf"
