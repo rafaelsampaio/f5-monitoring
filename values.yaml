@@ -21,10 +21,13 @@ logstash:
     pipelines.yml: |
       - pipeline.id: f5-waf
         path.config: "/usr/share/logstash/pipeline/f5-waf.conf"
+        pipeline.ecs_compatibility: disabled
       - pipeline.id: f5-ts
         path.config: "/usr/share/logstash/pipeline/f5-ts.conf"
+        pipeline.ecs_compatibility: disabled
       - pipeline.id: beats
         path.config: "/usr/share/logstash/pipeline/logstash.conf"
+        pipeline.ecs_compatibility: disabled
   logstashPipeline:
     f5-waf.conf: |
       input {
