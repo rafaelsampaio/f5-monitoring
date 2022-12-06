@@ -164,25 +164,15 @@ logstash:
           }
 
           if "systemInfo" in [telemetryEventCategory] {
-              mutate {
-                  gsub => [
-                      "[system][systemTimestamp]", "@", ""
-                  ]
-              }
               date {
-                  match => [ "[system][systemTimestamp]", "MMM d, yyyy  HH:mm:ss.SSS" ]
+                  match => [ "[system][systemTimestamp]", "MMM d, yyyy @ HH:mm:ss.SSS", "ISO8601" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
           }
           else if "LTM" in [telemetryEventCategory] {
-              mutate {
-                  gsub => [
-                      "[event_timestamp]", "@", ""
-                  ]
-              }
               date {
-                  match => [ "[event_timestamp]", "MMM d, yyyy  HH:mm:ss.SSS" ]
+                  match => [ "[event_timestamp]", "MMM d, yyyy @ HH:mm:ss.SSS", "ISO8601" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -205,13 +195,8 @@ logstash:
               }
           }
           else if "AFM" in [telemetryEventCategory] {
-              mutate {
-                  gsub => [
-                      "[date_time]", "@", ""
-                  ]
-              }
               date {
-                  match => [ "[date_time]","MMM d, yyyy  HH:mm:ss.SSS" ]
+                  match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS", "ISO8601" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
@@ -237,18 +222,13 @@ logstash:
               }
           }
           else if "ASM" in [telemetryEventCategory] {
-              mutate {
-                  gsub => [
-                      "[date_time]", "@", ""
-                  ]
-              }
               date {
-                  match => [ "[date_time]","MMM d, yyyy  HH:mm:ss.SSS" ]
+                  match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS", "ISO8601" ]
                   target => "@eventTimestamp"
                   timezone => "UTC"
               }
               date {
-                  match => [[policy_apply_date], "yyyy-MM-dd HH:mm:ss"]
+                  match => [[policy_apply_date], "yyyy-MM-dd HH:mm:ss", "ISO8601" ]
                   timezone => "UTC"
               }
               mutate {
