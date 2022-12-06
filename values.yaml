@@ -552,49 +552,47 @@ logstash:
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-stats-%{+YYYY.MM.dd}"
               }
-          }
-          if "LTM" in [telemetryEventCategory] {
+          } else if "LTM" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-ltm-%{+YYYY.MM.dd}"
               }
-          }
-          if "AFM" in [telemetryEventCategory] {
+          } else if "AFM" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-afm-%{+YYYY.MM.dd}"
               }
-          }
-          if "ASM" in [telemetryEventCategory] {
+          } else if "ASM" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-asm-%{+YYYY.MM.dd}"
               }
-          }
-          if "APM" in [telemetryEventCategory] {
+          } else if "APM" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-apm-%{+YYYY.MM.dd}"
               }
-          }
-          if "ihealthInfo" in [telemetryEventCategory] {
+          } else if "ihealthInfo" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-ihealth-%{+YYYY.MM.dd}"
               }
-          }
-          if "AVR" in [telemetryEventCategory] {
+          } else if "AVR" in [telemetryEventCategory] {
               elasticsearch {
                   hosts => ["http://elasticsearch-master:9200"]
                   index => "f5-ts-events-avr-%{+YYYY.MM.dd}"
+              }
+          } else {
+              stdout {
+                  codec => json
               }
           }
       }
 
 elasticsearch:
   antiAffinity: "soft"
-  replicas: 1
-  minimumMasterNodes: 1
+  #replicas: 1
+  #minimumMasterNodes: 1
   resources:
     requests:
       memory: 4Gi
