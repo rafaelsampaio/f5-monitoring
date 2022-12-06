@@ -270,7 +270,7 @@ logstash:
                   "[http_requests]" => "integer"
                   "[http_statcode]" => "integer"
                   "[hw_cache_lookups]" => "integer"
-                  "[hw_cache_responses" => "integer"
+                  "[hw_cache_responses]" => "integer"
                   "[hw_cookie_valid]" => "integer"
                   "[hw_inspected]" => "integer"
                   "[hw_malformed]" => "integer"
