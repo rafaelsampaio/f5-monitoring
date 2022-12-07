@@ -426,17 +426,21 @@ logstash:
               }
           }
 
+          mutate {
+              add_field => {
+                  "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
+              }
+          }
+
           if "systemInfo" in [telemetryEventCategory] {
               date {
                   match => [ "[system][systemTimestamp]", "MMM d, yyyy @ HH:mm:ss.SSS" ]
-                  target => "eventTimestamp"
                   timezone => "UTC"
               }
           }
           else if "LTM" in [telemetryEventCategory] {
               date {
                   match => [ "[event_timestamp]","MMM d, yyyy @ HH:mm:ss.SSS" ]
-                  target => "eventTimestamp"
                   timezone => "UTC"
               }
               geoip {
@@ -447,7 +451,6 @@ logstash:
           else if "AFM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
-                  target => "eventTimestamp"
                   timezone => "UTC"
               }
               geoip {
@@ -462,7 +465,6 @@ logstash:
           else if "ASM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
-                  target => "eventTimestamp"
                   timezone => "UTC"
               }
               date {
@@ -488,32 +490,15 @@ logstash:
           else if "AVR" in [telemetryEventCategory] {
               date {
                   match => [ "[EOCTimestamp]","UNIX" ]
-                  target => "eventTimestamp"
                   timezone => "UTC"
               }
               if [LatencyHistogram] {
-                  mutate {
-                      split => {
-                          "[LatencyHistogram]" => "|"
-                      }
-                      copy => {
-                          "[LatencyHistogram][0]" => "[LatencyHistogram][values]"
-                      }
-                      split => {
-                          "[LatencyHistogram][values]" => ","
-                      }
-                      convert => {
-                          "[LatencyHistogram][values]" => "integer"
-                      }
-                      copy => {
-                          "[LatencyHistogram][0]" => "[LatencyHistogram][counts]"
-                      }
-                      split => {
-                          "[LatencyHistogram][counts]" => ","
-                      }
-                      convert => {
-                          "[LatencyHistogram][counts]" => "integer"
-                      }
+                  ruby {
+                      code => "
+                          histogram_hash = event.get("[LatencyHistogram]").split("|")
+                          event.set("[LatencyHistogram][values]", histogram_hash[0].split(","))
+                          event.set("[LatencyHistogram][counts]", histogram_hash[1].split(","))
+                      "
                   }
               }
               geoip {
@@ -522,62 +507,13 @@ logstash:
               }
           }
           else {
-              mutate {
-                  add_tag => [ "_eventCategory_not_defined" ]
-              }
+
           }
       }
       output {
-          if "systemInfo" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-stats-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "LTM" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-ltm-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "AFM" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-afm-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "ASM" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-asm-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "APM" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-apm-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "ihealthInfo" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-ihealth-%{+YYYY.MM.dd}"
-              }
-          }
-          else if "AVR" in [telemetryEventCategory] {
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-avr-%{+YYYY.MM.dd}"
-              }
-          }
-          else {
-              stdout {
-                  codec => json
-              }
-              elasticsearch {
-                  hosts => ["http://elasticsearch-master:9200"]
-                  index => "f5-ts-events-other-%{+YYYY.MM.dd}"
-              }
+          elasticsearch {
+              hosts => ["http://elasticsearch-master:9200"]
+              index => "f5-ts-%{[@metadata][target_index]}"
           }
       }
 
