@@ -495,9 +495,9 @@ logstash:
               if [LatencyHistogram] {
                   ruby {
                       code => "
-                          histogram_hash = event.get("[LatencyHistogram]").split("|")
-                          event.set("[LatencyHistogram][values]", histogram_hash[0].split(","))
-                          event.set("[LatencyHistogram][counts]", histogram_hash[1].split(","))
+                          histogram_hash = event.get('[LatencyHistogram]').split('|')
+                          event.set('[LatencyHistogram][values]', histogram_hash[0].split(','))
+                          event.set('[LatencyHistogram][counts]', histogram_hash[1].split(','))
                       "
                   }
               }
