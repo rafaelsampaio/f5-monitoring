@@ -496,24 +496,24 @@ logstash:
                       split => {
                           "[LatencyHistogram]" => "|"
                       }
-                      #split => {
-                      #    "[LatencyHistogram][0]" => ","
-                      #}
-                      #copy => {
-                      #    "[LatencyHistogram][0]" => "[LatencyHistogram][values]"
-                      #}
-                      #convert => {
-                      #    "[LatencyHistogram][values]" => "integer"
-                      #}
-                      #split => {
-                      #    "[LatencyHistogram][1]" => ","
-                      #}
-                      #copy => {
-                      #    "[LatencyHistogram][0]" => "[LatencyHistogram][counts]"
-                      #}
-                      #convert => {
-                      #    "[LatencyHistogram][counts]" => "integer"
-                      #}
+                      copy => {
+                          "[LatencyHistogram][0]" => "[LatencyHistogram][values]"
+                      }
+                      split => {
+                          "[LatencyHistogram][values]" => ","
+                      }
+                      convert => {
+                          "[LatencyHistogram][values]" => "integer"
+                      }
+                      copy => {
+                          "[LatencyHistogram][0]" => "[LatencyHistogram][counts]"
+                      }
+                      split => {
+                          "[LatencyHistogram][counts]" => ","
+                      }
+                      convert => {
+                          "[LatencyHistogram][counts]" => "integer"
+                      }
                   }
               }
               geoip {
