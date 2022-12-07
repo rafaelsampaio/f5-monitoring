@@ -500,7 +500,9 @@ logstash:
                       code => "
                           histogram_hash = event.get('[LatencyHistogram]').split('|')
                           event.set('[LatencyHistogramHash][values]', histogram_hash[0].split(','))
-                          event.set('[LatencyHistogramHash][counts]', histogram_hash[1].split(','))
+                          temp_counts = histogram_hash[1].split(',')
+                          temp_counts.push '0'
+                          event.set('[LatencyHistogramHash][counts]', temp_counts)
                       "
                   }
                   mutate {
