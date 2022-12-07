@@ -499,9 +499,15 @@ logstash:
                   ruby {
                       code => "
                           histogram_hash = event.get('[LatencyHistogram]').split('|')
-                          event.set('[LatencyHistogram][values]', histogram_hash[0].split(','))
-                          event.set('[LatencyHistogram][counts]', histogram_hash[1].split(','))
+                          event.set('[LatencyHistogramHash][values]', histogram_hash[0].split(','))
+                          event.set('[LatencyHistogramHash][counts]', histogram_hash[1].split(','))
                       "
+                  }
+                  mutate {
+                      convert => {
+                          "[LatencyHistogramHash][values]" => "integer"
+                          "[LatencyHistogramHash][counts]" => "integer"
+                      }
                   }
               }
               geoip {
