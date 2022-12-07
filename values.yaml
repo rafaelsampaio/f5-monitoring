@@ -430,6 +430,9 @@ logstash:
               add_field => {
                   "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
               }
+              lowercase => [
+                  "[@metadata][target_index]"
+              ]
           }
 
           if "systemInfo" in [telemetryEventCategory] {
