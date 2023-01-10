@@ -580,7 +580,7 @@ kibana:
 prometheus:
   extraScrapeConfigs: {}
 
-  pushgateway:
+  prometheus-pushgateway:
     enabled: false
 
 grafana:
