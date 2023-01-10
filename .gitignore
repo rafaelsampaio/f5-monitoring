@@ -7,3 +7,9 @@
 **/charts/elasticsearch/*
 *.lock
 *-private.yaml
+f5-ts-afm-*.json
+f5-ts-asm-*.json
+f5-ts-avr-*.json
+f5-ts-ltm-*.json
+f5-ts-systeminfo-*.json
+f5-waf-logs-*.json

@@ -175,6 +175,24 @@ logstash:
               ecs_compatibility => "v1"
           }
 
+          if [telemetryEventCategory] or [telemetryEventCategory] =~ /.*/ {
+              mutate {
+                  add_field => {
+                      "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
+                  }
+              }
+          } else {
+              mutate {
+                  add_field => {
+                      "[@metadata][target_index]" => "unknown-%{+YYYY.MM.dd}"
+                  }
+              }
+          }
+
+          ruby {
+              code => "event.set('[@metadata][target_index]',event.get('[@metadata][target_index]').downcase)"
+          }
+
           mutate {
               split => {
                   "[headers][x_forwarded_for]" => ","
@@ -426,13 +444,9 @@ logstash:
               }
           }
 
-          mutate {
-              add_field => {
-                  "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
-              }
-          }
-          ruby {
-              code => "event.set('[@metadata][target_index]',event.get('[@metadata][target_index]').downcase)"
+          useragent {
+              source => "[user_agent]"
+              target => "[user_agent_meta]"
           }
 
           if "systemInfo" in [telemetryEventCategory] {
@@ -485,10 +499,22 @@ logstash:
               }
           }
           else if "APM" in [telemetryEventCategory] {
-
+              date {
+                  match => [ "[f5telemetry_timestamp]", "ISO8601"]
+                  timezone => "UTC"
+              }
           }
           else if "ihealthInfo" in [telemetryEventCategory] {
-
+              date {
+                  match => [ "[telemetryServiceInfo][cycleStart]","EEE, dd MMM yyyy HH:mm:ss z" ]
+                  target => "[telemetryServiceInfo][cycleStart]"
+                  timezone => "UTC"
+              }
+              date {
+                  match => [ "[telemetryServiceInfo][cycleEnd]","EEE, dd MMM yyyy HH:mm:ss z" ]
+                  target => "[telemetryServiceInfo][cycleEnd]"
+                  timezone => "UTC"
+              }
           }
           else if "AVR" in [telemetryEventCategory] {
               date {
@@ -549,7 +575,7 @@ kibana:
             #!/bin/bash
             KB_URL=http://localhost:5601
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*","timeFieldName":"eventTimestamp"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*","timeFieldName":"eventTimestamp"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*","timeFieldName":"eventTimestamp"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*","timeFieldName":"eventTimestamp"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*","timeFieldName":"eventTimestamp"}}]}'
+            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*"}}]}'
 
 prometheus:
   extraScrapeConfigs: {}
@@ -636,6 +662,14 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards/security
+        - name: "bigip"
+          orgId: 1
+          folder: "BIG-IP"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/bigip
   dashboards:
     nginx:
       nginxplus:
@@ -648,6 +682,10 @@ grafana:
       f5waf:
         url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/WAFDashboard.json
         datasource: Elasticsearch-WAF
+    bigip:
+      stats:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/BIGIPDashboard.json
+        datasource: Elasticsearch-TS-stats
   service:
     type: NodePort
     nodePort: 32517
