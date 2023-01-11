@@ -21,13 +21,10 @@ logstash:
     pipelines.yml: |
       - pipeline.id: f5-waf
         path.config: "/usr/share/logstash/pipeline/f5-waf.conf"
-        pipeline.ecs_compatibility: v1
+        pipeline.ecs_compatibility: disabled
       - pipeline.id: f5-ts
         path.config: "/usr/share/logstash/pipeline/f5-ts.conf"
-        pipeline.ecs_compatibility: v1
-      - pipeline.id: beats
-        path.config: "/usr/share/logstash/pipeline/logstash.conf"
-        pipeline.ecs_compatibility: v1
+        pipeline.ecs_compatibility: disabled
   logstashPipeline:
     f5-waf.conf: |
       input {
@@ -167,25 +164,14 @@ logstash:
       input {
           http {
               port => 8514
+              ecs_compatibility => disabled
+              codec => json
           }
       }
       filter {
-          json {
-              source => "message"
-              ecs_compatibility => "v1"
-          }
-
-          if [telemetryEventCategory] or [telemetryEventCategory] =~ /.*/ {
-              mutate {
-                  add_field => {
-                      "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
-                  }
-              }
-          } else {
-              mutate {
-                  add_field => {
-                      "[@metadata][target_index]" => "unknown-%{+YYYY.MM.dd}"
-                  }
+          mutate {
+              add_field => {
+                  "[@metadata][target_index]" => "%{[telemetryEventCategory]}-%{+YYYY.MM.dd}"
               }
           }
 
@@ -445,8 +431,8 @@ logstash:
           }
 
           useragent {
-              source => "[user_agent]"
-              target => "[user_agent_meta]"
+              source => "[headers][http_user_agent]"
+              target => "[headers][http_user_agent_meta]"
           }
 
           if "systemInfo" in [telemetryEventCategory] {
@@ -544,7 +530,11 @@ logstash:
               }
           }
           else {
-
+              mutate {
+                  add_field => {
+                      "[@metadata][target_index]" => "unknown-%{+YYYY.MM.dd}"
+                  }
+              }
           }
       }
       output {
@@ -605,42 +595,42 @@ grafana:
           url: http://elasticsearch-master:9200
           database: "f5-waf-logs-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-stats
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-stats-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-ltm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-ltm-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-afm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-afm-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-asm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-asm-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
         - name: Elasticsearch-TS-events-avr
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-events-avr-*"
           jsonData:
-            esVersion: "7.0+"
+            esVersion: "7.10+"
             timeField: "@timestamp"
   dashboardProviders:
     dashboardproviders.yaml:
