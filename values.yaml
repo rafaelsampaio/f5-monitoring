@@ -165,7 +165,9 @@ logstash:
           http {
               port => 8514
               ecs_compatibility => disabled
-              codec => json
+              codec => json {
+                  ecs_compatibility => disabled
+              }
           }
       }
       filter {
@@ -180,10 +182,6 @@ logstash:
           }
 
           mutate {
-              split => {
-                  "[headers][x_forwarded_for]" => ","
-                  "[headers][x_real_ip]" => ","
-              }
               convert => {
                   "[a_reqs]" => "integer"
                   "[aaaa_reqs]" => "integer"
@@ -270,8 +268,6 @@ logstash:
                   "[hdr_ad]" => "integer"
                   "[hdr_ra]" => "integer"
                   "[hdr_tc]" => "integer"
-                  "[headers][content_length]" => "integer"
-                  "[headers][x_forwarded_port]" => "integer"
                   "[hints]" => "integer"
                   "[HitCount]" => "integer"
                   "[http_requests_limit]" => "integer"
@@ -428,22 +424,23 @@ logstash:
                   "[wr_merged]" => "integer"
                   "[wr_ops]" => "integer"
               }
-          }
-
-          useragent {
-              source => "[headers][http_user_agent]"
-              target => "[headers][http_user_agent_meta]"
+              remove_field => [
+                  "[headers]",
+                  "[host]"
+              ]
           }
 
           if "systemInfo" in [telemetryEventCategory] {
               date {
-                  match => [ "[system][systemTimestamp]", "MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  match => [ "[system][systemTimestamp]", "ISO8601" ]
+                  target => "[system][systemTimestamp]"
                   timezone => "UTC"
               }
           }
           else if "LTM" in [telemetryEventCategory] {
               date {
                   match => [ "[event_timestamp]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "[event_timestamp]"
                   timezone => "UTC"
               }
               geoip {
@@ -454,6 +451,7 @@ logstash:
           else if "AFM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "[date_time]"
                   timezone => "UTC"
               }
               geoip {
@@ -468,6 +466,7 @@ logstash:
           else if "ASM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "[date_time]"
                   timezone => "UTC"
               }
               date {
@@ -487,6 +486,7 @@ logstash:
           else if "APM" in [telemetryEventCategory] {
               date {
                   match => [ "[f5telemetry_timestamp]", "ISO8601"]
+                  target => "[f5telemetry_timestamp]"
                   timezone => "UTC"
               }
           }
@@ -505,6 +505,7 @@ logstash:
           else if "AVR" in [telemetryEventCategory] {
               date {
                   match => [ "[EOCTimestamp]","UNIX" ]
+                  target => "[EOCTimestamp]"
                   timezone => "UTC"
               }
               if [LatencyHistogram] {
@@ -565,7 +566,7 @@ kibana:
             #!/bin/bash
             KB_URL=http://localhost:5601
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*"}}]}'
+            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*"}},{"type":"index-pattern","id":"f5-ts-systeminfo","attributes":{"title":"f5-ts-systeminfo-*"}}]}'
 
 prometheus:
   extraScrapeConfigs: {}
