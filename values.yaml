@@ -452,7 +452,6 @@ logstash:
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
                   target => "[date_time]"
-                  timezone => "UTC"
               }
               geoip {
                   source => "[dest_ip]"
@@ -566,7 +565,7 @@ kibana:
             #!/bin/bash
             KB_URL=http://localhost:5601
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-stats","attributes":{"title":"f5-ts-stats-*"}},{"type":"index-pattern","id":"f5-ts-events-ltm","attributes":{"title":"f5-ts-events-ltm-*"}},{"type":"index-pattern","id":"f5-ts-events-afm","attributes":{"title":"f5-ts-events-afm-*"}},{"type":"index-pattern","id":"f5-ts-events-asm","attributes":{"title":"f5-ts-events-asm-*"}},{"type":"index-pattern","id":"f5-ts-events-avr","attributes":{"title":"f5-ts-events-avr-*"}},{"type":"index-pattern","id":"f5-ts-systeminfo","attributes":{"title":"f5-ts-systeminfo-*"}}]}'
+            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-ltm","attributes":{"title":"f5-ts-ltm-*"}},{"type":"index-pattern","id":"f5-ts-afm","attributes":{"title":"f5-ts-afm-*"}},{"type":"index-pattern","id":"f5-ts-asm","attributes":{"title":"f5-ts-asm-*"}},{"type":"index-pattern","id":"f5-ts-avr","attributes":{"title":"f5-ts-avr-*"}},{"type":"index-pattern","id":"f5-ts-systeminfo","attributes":{"title":"f5-ts-systeminfo-*"}},{"type":"index-pattern","id":"f5-ts-unknown","attributes":{"title":"f5-ts-unknown-*"}}]}'
 
 prometheus:
   extraScrapeConfigs: {}
@@ -598,41 +597,41 @@ grafana:
           jsonData:
             esVersion: "7.10+"
             timeField: "@timestamp"
-        - name: Elasticsearch-TS-stats
+        - name: Elasticsearch-TS-systeminfo
           type: elasticsearch
           url: http://elasticsearch-master:9200
-          database: "f5-ts-stats-*"
+          database: "f5-ts-systeminfo-*"
           jsonData:
             esVersion: "7.10+"
             timeField: "@timestamp"
-        - name: Elasticsearch-TS-events-ltm
+        - name: Elasticsearch-TS-ltm
           type: elasticsearch
           url: http://elasticsearch-master:9200
-          database: "f5-ts-events-ltm-*"
+          database: "f5-ts-ltm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "@timestamp"
-        - name: Elasticsearch-TS-events-afm
+            timeField: "event_timestamp"
+        - name: Elasticsearch-TS-afm
           type: elasticsearch
           url: http://elasticsearch-master:9200
-          database: "f5-ts-events-afm-*"
+          database: "f5-ts-afm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "@timestamp"
-        - name: Elasticsearch-TS-events-asm
+            timeField: "date_time"
+        - name: Elasticsearch-TS-asm
           type: elasticsearch
           url: http://elasticsearch-master:9200
-          database: "f5-ts-events-asm-*"
+          database: "f5-ts-asm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "@timestamp"
-        - name: Elasticsearch-TS-events-avr
+            timeField: "date_time"
+        - name: Elasticsearch-TS-avr
           type: elasticsearch
           url: http://elasticsearch-master:9200
-          database: "f5-ts-events-avr-*"
+          database: "f5-ts-avr-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "@timestamp"
+            timeField: "EOCTimestamp"
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1

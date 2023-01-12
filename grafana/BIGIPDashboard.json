@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Dashboard for the F5 BIG-IP Telemetry Streaming <ith Prometheus",
+  "description": "Dashboard for the F5 BIG-IP Telemetry Streaming with Prometheus",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 12089,
