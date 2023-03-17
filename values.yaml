@@ -21,11 +21,48 @@ logstash:
     pipelines.yml: |
       - pipeline.id: f5-waf
         path.config: "/usr/share/logstash/pipeline/f5-waf.conf"
-        pipeline.ecs_compatibility: disabled
+        pipeline.ecs_compatibility: v1
       - pipeline.id: f5-ts
         path.config: "/usr/share/logstash/pipeline/f5-ts.conf"
-        pipeline.ecs_compatibility: disabled
+        pipeline.ecs_compatibility: v1
+      - pipeline.id: f5-dns
+        path.config: "/usr/share/logstash/pipeline/f5-dns.conf"
+        pipeline.ecs_compatibility: v1
   logstashPipeline:
+    f5-dns.conf: |
+      input {
+        syslog {
+          port => 51453
+          codec => plain {
+            charset => "ISO-8859-1"
+          }
+        }
+      }
+      filter {
+        grok {
+          match => {
+            "message" => [
+              "\A%{SYSLOGTIMESTAMP:event.ingested} %{HOSTNAME} %{SYSLOGPROG:event.provider} %{TIMESTAMP_ISO8601:event.created} %{HOSTNAME:server.domain} from %{IP:source.ip}/%{NUMBER:source.port} view %{WORD:view}: query: %{HOSTNAME:dns.question.name} %{WORD:dns.question.class} %{WORD:dns.question.type} %{NOTSPACE:dns.header_flags} %{IP:server.ip}",
+              "\A%{SYSLOGTIMESTAMP:event.ingested} %{HOSTNAME} %{SYSLOGPROG:event.provider} %{TIMESTAMP_ISO8601:event.created} %{HOSTNAME:server.domain} to %{IP:source.ip}/%{NUMBER:source.port} [%{WORD:dns.response_code} %{PROG:dns.header_flags}] response: %{HOSTNAME:dns.answers.name} %{NUMBER:dns.answers.ttl} %{WORD:dns.answers.class} %{WORD:dns.answers.type} %{IP:dns.answers.data}"
+            ]
+          }
+        }
+        mutate {
+          split => { "[dns][header_flags]" => "," }
+        }
+        geoip {
+          source => "[source][ip]"
+          target => "[source][geo]"
+        }
+      }
+
+      output {
+        elasticsearch {
+          hosts => ["http://elasticsearch-master:9200"]
+          index => "f5-dns-logs-%{+YYYY.MM.dd}"
+        }
+      }
+
     f5-waf.conf: |
       input {
         syslog {
@@ -113,13 +150,18 @@ logstash:
           ]
         }
         if [x_forwarded_for_header_value] in ["N/A", "-"] {
-          mutate { add_field => { "source_host" => "%{x_forwarded_for_header_value}"}}
+          mutate {
+            add_field => { "source_host" => "%{ip_client}"}
+            remove_field => [ "x_forwarded_for_header_value" ]
+          }
         } else {
-          mutate { add_field => { "source_host" => "%{ip_client}"}}
+          mutate {
+            add_field => { "source_host" => "%{x_forwarded_for_header_value}"
+          }
         }
         geoip {
           source => "source_host"
-          target => "geoip"
+          target => "[source][geo]"
         }
         ruby {
             code => "
@@ -160,14 +202,12 @@ logstash:
           index => "f5-waf-logs-%{+YYYY.MM.dd}"
         }
       }
+
     f5-ts.conf: |
       input {
           http {
               port => 8514
-              ecs_compatibility => disabled
-              codec => json {
-                  ecs_compatibility => disabled
-              }
+              codec => json
           }
       }
       filter {
@@ -503,6 +543,7 @@ logstash:
                   timezone => "UTC"
               }
           }
+
           else if "LTM" in [telemetryEventCategory] {
               date {
                   match => [ "[event_timestamp]","MMM d, yyyy @ HH:mm:ss.SSS" ]
@@ -511,9 +552,10 @@ logstash:
               }
               geoip {
                   source => "[client_ip]"
-                  target => "[client_geo]"
+                  target => "[source][geo]"
               }
           }
+
           else if "AFM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
@@ -521,13 +563,14 @@ logstash:
               }
               geoip {
                   source => "[dest_ip]"
-                  target => "[dest_geo]"
+                  target => "[server][geo]"
               }
               geoip {
                   source => "[source_ip]"
-                  target => "[source_geo]"
+                  target => "[source][geo]"
               }
           }
+
           else if "ASM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
@@ -541,13 +584,14 @@ logstash:
               }
               geoip {
                   source => "[dest_ip]"
-                  target => "[dest_geo]"
+                  target => "[server][geo]"
               }
               geoip {
                   source => "[source_host]"
-                  target => "[source_geo]"
+                  target => "[source][geo]"
               }
           }
+
           else if "APM" in [telemetryEventCategory] {
               date {
                   match => [ "[f5telemetry_timestamp]", "ISO8601"]
@@ -555,6 +599,7 @@ logstash:
                   timezone => "UTC"
               }
           }
+
           else if "ihealthInfo" in [telemetryEventCategory] {
               date {
                   match => [ "[telemetryServiceInfo][cycleStart]","EEE, dd MMM yyyy HH:mm:ss z" ]
@@ -567,6 +612,7 @@ logstash:
                   timezone => "UTC"
               }
           }
+
           else if "AVR" in [telemetryEventCategory] {
               date {
                   match => [ "[EOCTimestamp]","UNIX" ]
@@ -590,11 +636,30 @@ logstash:
                       }
                   }
               }
-              geoip {
-                  source => "[client_ip]"
-                  target => "[client_geo]"
+              if [client_ip] or [client_ip] =~ /.*/ {
+                  if [client_ip] not in ["N/A", "-"] {
+                  geoip {
+                      source => "[client_ip]"
+                      target => "[source][geo]"
+                  }
+              }
+              if [pool_address] or [pool_address] =~ /.*/ {
+                  mutate {
+                      gsub => [
+                          "pool_address", ":[\d]*", ""
+                      ]
+                  }
+              }
+
+              if [ClientIP] or [ClientIP] =~ /.*/ {
+                  if [ClientIP] not in ["N/A", "-"] {
+                  geoip {
+                      source => "[ClientIP]"
+                      target => "[source][geo]"
+                  }
               }
           }
+
           else {
               mutate {
                   add_field => {
