@@ -1,35 +1,17 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "$$hashKey": "object:708",
-        "builtIn": 1,
-        "datasource": "$Datasource",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
-        "name": "Annotations & Alerts",
-        "showIn": 0,
-        "type": "dashboard"
-      }
-    ]
-  },
   "description": "Dashboard for the F5 BIG-IP Telemetry Streaming with Prometheus",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 12089,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1663090841364,
+  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "collapsed": false,
       "datasource": {
-        "type": "graphite",
-        "uid": "-OGMrqY7z"
+        "type": "graphite"
       },
       "gridPos": {
         "h": 1,
@@ -39,6 +21,14 @@
       },
       "id": 58,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "graphite"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Application Health Status",
       "type": "row"
     },
@@ -67,8 +57,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 5,
+        "h": 6,
+        "w": 12,
         "x": 0,
         "y": 1
       },
@@ -88,18 +78,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "kLUGJjL7k"
+            "type": "prometheus"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "f5_5xxResp{httpProfiles=\"$httpProfile\",instance=\"$device\"}",
+          "expr": "f5_5xxResp{httpProfiles=~\"$httpProfile\",instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "",
+          "range": true,
           "refCount": 0,
           "refId": "A",
           "target": "aliasByNode(summarize(nonNegativeDerivative(stats.gauges.f5telemetry.$Device.httpProfiles.*.5xxResp), '2min'), 5)",
@@ -107,6 +98,77 @@
         }
       ],
       "title": "HTTP Profile 5xx Responses",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 65,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "f5_3xxResp{httpProfiles=~\"$httpProfile\",instance=~\"$device\"}",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP_3XX RESPONSE",
       "type": "stat"
     },
     {
@@ -135,10 +197,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 5,
-        "y": 1
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 7
       },
       "id": 63,
       "options": {
@@ -156,18 +218,20 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${Datasource}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "f5_4xxResp{httpProfiles=\"$httpProfile\",instance=\"$device\"}",
+          "expr": "f5_4xxResp{httpProfiles=~\"$httpProfile\",instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -204,79 +268,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 7,
-        "x": 10,
-        "y": 1
-      },
-      "id": 65,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.4.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${Datasource}"
-          },
-          "exemplar": true,
-          "expr": "f5_3xxResp{httpProfiles=\"$httpProfile\",instance=\"$device\"}",
-          "interval": "",
-          "legendFormat": "",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP_3XX RESPONSE",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${Datasource}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 7,
-        "x": 17,
-        "y": 1
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 7
       },
       "id": 66,
       "options": {
@@ -294,18 +289,20 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${Datasource}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "f5_2xxResp{httpProfiles=\"$httpProfile\",instance=\"$device\"}",
+          "expr": "f5_2xxResp{httpProfiles=~\"$httpProfile\",instance=~\"$device\"}",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -322,15 +319,25 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 14
       },
       "id": 16,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "graphite",
+            "uid": "-OGMrqY7z"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Device System Stats",
       "type": "row"
     },
     {
       "datasource": {
+        "type": "prometheus",
         "uid": "$Datasource"
       },
       "description": "The internal system and tmm cpu usage",
@@ -368,7 +375,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 15
       },
       "id": 26,
       "options": {
@@ -384,23 +391,33 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
-          "expr": "f5_system_cpu{instance=\"$device\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_system_cpu{instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "system_cpu",
+          "range": true,
           "refCount": 0,
           "refId": "A",
           "target": "aliasByNode(stats.gauges.f5telemetry.$Device.system.tmmCpu, 3, 5)",
           "textEditor": true
         },
         {
-          "expr": "f5_system_tmmCpu{instance=\"$device\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_system_tmmCpu{instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "tmmCpu",
+          "range": true,
           "refCount": 0,
           "refId": "B",
           "target": "aliasByNode(stats.gauges.f5telemetry.$Device.system.cpu, 3, 5)",
@@ -450,7 +467,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 5
+        "y": 15
       },
       "id": 22,
       "options": {
@@ -466,18 +483,20 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${Datasource}"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "f5_system_memory{instance=\"$device\"}",
+          "expr": "f5_system_memory{instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "system_memory",
+          "range": true,
           "refId": "A"
         },
         {
@@ -485,10 +504,12 @@
             "type": "prometheus",
             "uid": "${Datasource}"
           },
-          "expr": "f5_system_tmmMemory{instance=\"$device\"}",
+          "editorMode": "code",
+          "expr": "f5_system_tmmMemory{instance=~\"$device\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "tmmMemory",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -516,7 +537,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 13
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 28,
@@ -537,7 +558,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -552,7 +573,7 @@
             "uid": "${Datasource}"
           },
           "exemplar": true,
-          "expr": "rate(f5_system_tmmTraffic_clientSideTraffic_bitsIn{instance=\"$device\"}[5m])",
+          "expr": "rate(f5_system_tmmTraffic_clientSideTraffic_bitsIn{instance=~\"$device\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{$device}}",
@@ -614,7 +635,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 13
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 31,
@@ -635,7 +656,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -645,7 +666,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(f5_system_tmmTraffic_clientSideTraffic_bitsOut{instance=\"$device\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "rate(f5_system_tmmTraffic_clientSideTraffic_bitsOut{instance=~\"$device\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{$device}}",
@@ -707,7 +731,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 13
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 30,
@@ -728,7 +752,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -738,7 +762,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(f5_system_tmmTraffic_serverSideTraffic_bitsIn{instance=\"$device\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "irate(f5_system_tmmTraffic_serverSideTraffic_bitsIn{instance=~\"$device\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{$device}}",
@@ -800,7 +827,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 13
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 29,
@@ -821,7 +848,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -831,7 +858,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(f5_system_tmmTraffic_serverSideTraffic_bitsOut{instance=\"$device\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "irate(f5_system_tmmTraffic_serverSideTraffic_bitsOut{instance=~\"$device\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{$device}}",
@@ -890,7 +920,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 20
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 32,
@@ -911,7 +941,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -921,7 +951,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(f5_counters_bitsIn{instance=\"$device\",networkInterfaces=\"mgmt\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "rate(f5_counters_bitsIn{instance=~\"$device\",networkInterfaces=\"mgmt\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{networkInterfaces}}",
@@ -983,7 +1016,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 20
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 33,
@@ -1004,7 +1037,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1014,7 +1047,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(f5_counters_bitsOut{instance=\"$device\",networkInterfaces=\"mgmt\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "irate(f5_counters_bitsOut{instance=~\"$device\",networkInterfaces=\"mgmt\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{networkInterfaces}}",
@@ -1076,7 +1112,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 20
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 34,
@@ -1097,7 +1133,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1107,7 +1143,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(f5_counters_bitsIn{instance=\"$device\",networkInterfaces=\"1.1\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "irate(f5_counters_bitsIn{instance=~\"$device\",networkInterfaces=\"1.1\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{networkInterfaces}}",
@@ -1169,7 +1208,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 20
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 35,
@@ -1190,7 +1229,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1200,7 +1239,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(f5_counters_bitsOut{instance=\"$device\",networkInterfaces=\"1.1\"}[5m])",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "irate(f5_counters_bitsOut{instance=~\"$device\",networkInterfaces=\"1.1\"}[5m])",
           "hide": false,
           "interval": "",
           "legendFormat": "{{networkInterfaces}}",
@@ -1252,10 +1294,19 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 37
       },
       "id": 18,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "graphite",
+            "uid": "-OGMrqY7z"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Virtual Servers",
       "type": "row"
     },
@@ -1279,7 +1330,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 37,
@@ -1300,7 +1351,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1310,7 +1361,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_clientside_bitsIn{instance=\"$device\",virtualServers=~\"$virtualServers\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_clientside_bitsIn{instance=~\"$device\",virtualServers=~\"$virtualServers\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{virtualServers}}",
@@ -1371,7 +1425,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 38,
@@ -1392,7 +1446,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1402,7 +1456,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_clientside_bitsOut{instance=\"$device\",virtualServers=~\"$virtualServers\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_clientside_bitsOut{instance=~\"$device\",virtualServers=~\"$virtualServers\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{virtualServers}}",
@@ -1463,7 +1520,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 39,
@@ -1484,7 +1541,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1494,7 +1551,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_clientside_curConns{instance=\"$device\",virtualServers=~\"$virtualServers\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_clientside_curConns{instance=~\"$device\",virtualServers=~\"$virtualServers\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{virtualServers}}",
@@ -1545,10 +1605,19 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 46
       },
       "id": 47,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "graphite",
+            "uid": "-OGMrqY7z"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Pools",
       "type": "row"
     },
@@ -1572,7 +1641,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 48,
@@ -1593,7 +1662,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1603,7 +1672,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_serverside_bitsIn{instance=\"$device\",pools=~\"$Pools\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_serverside_bitsIn{instance=~\"$device\",pools=~\"$Pools\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{pools}}",
@@ -1664,7 +1736,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 49,
@@ -1685,7 +1757,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1695,7 +1767,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_serverside_bitsOut{instance=\"$device\",pools=~\"$Pools\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_serverside_bitsOut{instance=~\"$device\",pools=~\"$Pools\"}",
           "interval": "",
           "legendFormat": "{{pools}}",
           "refId": "A",
@@ -1755,7 +1830,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 50,
@@ -1776,7 +1851,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1786,7 +1861,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_totRequests{instance=\"$device\",pools=~\"$Pools\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_totRequests{instance=~\"$device\",pools=~\"$Pools\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{pools}}",
@@ -1847,7 +1925,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 55
       },
       "hiddenSeries": false,
       "id": 44,
@@ -1868,7 +1946,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1878,7 +1956,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_serverside_bitsOut{instance=\"$device\",pools=~\"$Pools\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_serverside_bitsOut{instance=~\"$device\",pools=~\"$Pools\"}",
           "interval": "",
           "legendFormat": "{{pools}} {{members}}",
           "refId": "A",
@@ -1938,7 +2019,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 55
       },
       "hiddenSeries": false,
       "id": 45,
@@ -1959,7 +2040,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.4.3",
+      "pluginVersion": "9.3.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1969,7 +2050,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "f5_serverside_curConns{instance=\"$device\",pools=~\"$Pools\"}",
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "expr": "f5_serverside_curConns{instance=~\"$device\",pools=~\"$Pools\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "{{pools}} {{members}}",
@@ -2011,7 +2095,7 @@
       }
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "datasource": {
         "type": "graphite",
         "uid": "-OGMrqY7z"
@@ -2020,316 +2104,359 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 63
       },
       "id": 52,
-      "panels": [
+      "panels": [],
+      "targets": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
-            "uid": "$Datasource"
+            "type": "graphite",
+            "uid": "-OGMrqY7z"
           },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {},
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 13,
-            "w": 24,
-            "x": 0,
-            "y": 54
-          },
-          "hiddenSeries": false,
-          "id": 54,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "max": true,
-            "min": true,
-            "rightSide": true,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "7.4.2",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "refId": "A",
-              "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.httpProfiles.-$Profile.*)), 6)",
-              "textEditor": true
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "HTTP Profile Details",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:5237",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:5238",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "$Datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {},
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 16,
-            "w": 24,
-            "x": 0,
-            "y": 67
-          },
-          "hiddenSeries": false,
-          "id": 55,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "max": true,
-            "min": true,
-            "rightSide": true,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "7.4.2",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "f5_protocolUses_sslv2{clientSslProfiles=\"/Common/clientssl\",instance=\"$device\"}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "clientssl",
-              "refId": "A",
-              "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.clientSslProfiles.-$Profile.*)), 6)",
-              "textEditor": true
-            },
-            {
-              "expr": "f5_protocolUses_sslv2{clientSslProfiles=\"/Common/clientssl-insecure-compatible\",instance=\"$device\"}",
-              "interval": "",
-              "legendFormat": "clientssl-insecure-compatible",
-              "refId": "B"
-            },
-            {
-              "expr": "f5_protocolUses_sslv2{clientSslProfiles=\"/Common/clientssl-secure\",instance=\"$device\"}",
-              "interval": "",
-              "legendFormat": "clientssl-secure",
-              "refId": "C"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "ClientSSL Profile Details",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:5237",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:5238",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "uid": "$Datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {},
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 16,
-            "w": 24,
-            "x": 0,
-            "y": 83
-          },
-          "hiddenSeries": false,
-          "id": 56,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "max": true,
-            "min": true,
-            "rightSide": true,
-            "show": true,
-            "total": true,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "percentage": false,
-          "pluginVersion": "7.4.2",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "f5_protocolUses_sslv2{instance=\"$device\",serverSslProfiles=\"/Common/serverssl\"}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "serverssl",
-              "refId": "A",
-              "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.serverSslProfiles.-$Profile.*)), 6)",
-              "textEditor": true
-            },
-            {
-              "expr": "f5_protocolUses_sslv2{instance=\"$device\",serverSslProfiles=\"/Common/serverssl-insecure-compatible\"}",
-              "interval": "",
-              "legendFormat": "insecure-compatible",
-              "refId": "B"
-            },
-            {
-              "expr": "f5_protocolUses_sslv2{instance=\"$device\",serverSslProfiles=\"/Common/apm-default-serverssl\"}",
-              "interval": "",
-              "legendFormat": "apm-default-serverssl",
-              "refId": "C"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "ServerSSL Profile Details",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:5237",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:5238",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "refId": "A"
         }
       ],
       "title": "Profiles",
       "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "hiddenSeries": false,
+      "id": 54,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "9.3.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "refId": "A",
+          "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.httpProfiles.-$Profile.*)), 6)",
+          "textEditor": true
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "HTTP Profile Details",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:5237",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:5238",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 77
+      },
+      "hiddenSeries": false,
+      "id": 55,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "9.3.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{clientSslProfiles=~\"/Common/clientssl\",instance=~\"$device\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "clientssl",
+          "range": true,
+          "refId": "A",
+          "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.clientSslProfiles.-$Profile.*)), 6)",
+          "textEditor": true
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{clientSslProfiles=~\"/Common/clientssl-insecure-compatible\",instance=~\"$device\"}",
+          "interval": "",
+          "legendFormat": "clientssl-insecure-compatible",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{clientSslProfiles=~\"/Common/clientssl-secure\",instance=~\"$device\"}",
+          "interval": "",
+          "legendFormat": "clientssl-secure",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "ClientSSL Profile Details",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:5237",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:5238",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 93
+      },
+      "hiddenSeries": false,
+      "id": 56,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "9.3.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{instance=~\"$device\",serverSslProfiles=~\"/Common/serverssl\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "serverssl",
+          "range": true,
+          "refId": "A",
+          "target": "aliasByNode(nonNegativeDerivative(keepLastValue(stats.gauges.f5telemetry.$Device.serverSslProfiles.-$Profile.*)), 6)",
+          "textEditor": true
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{instance=~\"$device\",serverSslProfiles=~\"/Common/serverssl-insecure-compatible\"}",
+          "interval": "",
+          "legendFormat": "insecure-compatible",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "f5_protocolUses_sslv2{instance=~\"$device\",serverSslProfiles=~\"/Common/apm-default-serverssl\"}",
+          "interval": "",
+          "legendFormat": "apm-default-serverssl",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "ServerSSL Profile Details",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:5237",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:5238",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     }
   ],
   "refresh": "",
-  "schemaVersion": 35,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -2337,8 +2464,8 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus-F5",
-          "value": "Prometheus-F5"
+          "text": "Prometheus",
+          "value": "Prometheus"
         },
         "hide": 0,
         "includeAll": false,
@@ -2354,17 +2481,21 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "192.168.0.170:443",
-          "value": "192.168.0.170:443"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "uid": "$Datasource"
         },
         "definition": "label_values(f5_system_cpu, instance)",
         "hide": 0,
-        "includeAll": false,
-        "multi": false,
+        "includeAll": true,
+        "multi": true,
         "name": "device",
         "options": [],
         "query": {
@@ -2382,23 +2513,27 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "/Demo-App/A1/App1",
-          "value": "/Demo-App/A1/App1"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "uid": "$Datasource"
         },
-        "definition": "label_values(f5_clientside_bitsIn{instance=\"$device\"}, virtualServers)",
+        "definition": "label_values(f5_clientside_bitsIn{instance=~\"$device\"}, virtualServers)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Virtual Servers",
         "multi": true,
         "name": "virtualServers",
         "options": [],
         "query": {
-          "query": "label_values(f5_clientside_bitsIn{instance=\"$device\"}, virtualServers)",
-          "refId": "Prometheus-virtualServers-Variable-Query"
+          "query": "label_values(f5_clientside_bitsIn{instance=~\"$device\"}, virtualServers)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2411,23 +2546,27 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "/Apps/Juice-Shop/juice-shop-pool",
-          "value": "/Apps/Juice-Shop/juice-shop-pool"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "uid": "$Datasource"
         },
-        "definition": "label_values(f5_serverside_bitsIn{instance=\"$device\"}, pools)",
+        "definition": "label_values(f5_serverside_bitsIn{instance=~\"$device\"}, pools)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "pools",
         "multi": true,
         "name": "Pools",
         "options": [],
         "query": {
-          "query": "label_values(f5_serverside_bitsIn{instance=\"$device\"}, pools)",
-          "refId": "Prometheus-Pools-Variable-Query"
+          "query": "label_values(f5_serverside_bitsIn{instance=~\"$device\"}, pools)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2440,22 +2579,26 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "/Common/MyHttpProfile",
-          "value": "/Common/MyHttpProfile"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "uid": "$Datasource"
         },
-        "definition": "label_values(f5_getReqs{instance=\"$device\"}, httpProfiles)",
+        "definition": "label_values(f5_getReqs{instance=~\"$device\"}, httpProfiles)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "HTTP Profile",
         "multi": true,
         "name": "httpProfile",
         "options": [],
         "query": {
-          "query": "label_values(f5_getReqs{instance=\"$device\"}, httpProfiles)",
+          "query": "label_values(f5_getReqs{instance=~\"$device\"}, httpProfiles)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -2470,7 +2613,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -2500,7 +2643,6 @@
   },
   "timezone": "",
   "title": "TS Prometheus Dashboard for F5 BIG-IP",
-  "uid": "jV3p92IMz",
-  "version": 16,
+  "version": 9,
   "weekStart": ""
 }

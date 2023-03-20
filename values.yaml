@@ -737,7 +737,7 @@ kibana:
             #!/bin/bash
             KB_URL=http://localhost:5601
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
-            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*"}},{"type":"index-pattern","id":"f5-ts-ltm","attributes":{"title":"f5-ts-ltm-*"}},{"type":"index-pattern","id":"f5-ts-afm","attributes":{"title":"f5-ts-afm-*"}},{"type":"index-pattern","id":"f5-ts-asm","attributes":{"title":"f5-ts-asm-*"}},{"type":"index-pattern","id":"f5-ts-avr","attributes":{"title":"f5-ts-avr-*"}},{"type":"index-pattern","id":"f5-ts-systeminfo","attributes":{"title":"f5-ts-systeminfo-*"}},{"type":"index-pattern","id":"f5-ts-unknown","attributes":{"title":"f5-ts-unknown-*"}}]}'
+            curl -XPOST "$KB_URL/api/kibana/dashboards/import" -H "Content-Type: application/json" -H 'kbn-xsrf: true' -d'{"objects":[{"type":"index-pattern","id":"f5-waf","attributes":{"title":"f5-waf-logs-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-ltm","attributes":{"title":"f5-ts-ltm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-afm","attributes":{"title":"f5-ts-afm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-asm","attributes":{"title":"f5-ts-asm-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-avr","attributes":{"title":"f5-ts-avr-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-systeminfo","attributes":{"title":"f5-ts-systeminfo-*","timeFieldName":"@timestamp"}},{"type":"index-pattern","id":"f5-ts-unknown","attributes":{"title":"f5-ts-unknown-*","timeFieldName":"@timestamp"}}]}'
 
 prometheus:
   extraScrapeConfigs: |
@@ -848,7 +848,13 @@ grafana:
     bigip:
       stats:
         url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/BIGIPDashboard.json
-        datasource: Elasticsearch-TS-stats
+        datasource: Prometheus
+      traffic:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/BIGIPTraffic.json
+        datasource: Prometheus
+      http:
+        url: https://raw.githubusercontent.com/rafaelsampaio/f5-monitoring/main/grafana/BIGIPHTTP.json
+        datasource: Prometheus
   service:
     type: NodePort
     nodePort: 32517
