@@ -19,15 +19,15 @@ logstash:
       containerPort: 8514
   logstashConfig:
     pipelines.yml: |
-      - pipeline.id: f5-waf
+      - pipeline.id: "f5-waf"
         path.config: "/usr/share/logstash/pipeline/f5-waf.conf"
-        pipeline.ecs_compatibility: v1
-      - pipeline.id: f5-ts
+        pipeline.ecs_compatibility: "v1"
+      - pipeline.id: "f5-ts"
         path.config: "/usr/share/logstash/pipeline/f5-ts.conf"
-        pipeline.ecs_compatibility: v1
-      - pipeline.id: f5-dns
+        pipeline.ecs_compatibility: "v1"
+      - pipeline.id: "f5-dns"
         path.config: "/usr/share/logstash/pipeline/f5-dns.conf"
-        pipeline.ecs_compatibility: v1
+        pipeline.ecs_compatibility: "v1"
   logstashPipeline:
     f5-dns.conf: |
       input {
@@ -62,6 +62,7 @@ logstash:
       output {
           elasticsearch {
               hosts => ["http://elasticsearch-master:9200"]
+              data_stream => false
               index => "f5-dns-logs-%{+YYYY.MM.dd}"
           }
       }
@@ -234,6 +235,7 @@ logstash:
       output {
           elasticsearch {
               hosts => ["http://elasticsearch-master:9200"]
+              data_stream => false
               index => "f5-waf-logs-%{+YYYY.MM.dd}"
           }
       }
@@ -243,7 +245,9 @@ logstash:
       input {
           http {
               port => 8514
-              codec => json
+              codec => json {
+                  ecs_compatibility => "v1"
+              }
           }
       }
 
@@ -576,6 +580,7 @@ logstash:
           if "systemInfo" in [telemetryEventCategory] {
               date {
                   match => [ "[system][systemTimestamp]", "ISO8601" ]
+                  target => "@timestamp"
                   #target => "[system][systemTimestamp]"
                   timezone => "UTC"
               }
@@ -584,6 +589,7 @@ logstash:
           else if "LTM" in [telemetryEventCategory] {
               date {
                   match => [ "[event_timestamp]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "@timestamp"
                   #target => "[event_timestamp]"
                   timezone => "UTC"
               }
@@ -596,6 +602,7 @@ logstash:
           else if "AFM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "@timestamp"
                   #target => "[date_time]"
               }
               geoip {
@@ -611,6 +618,7 @@ logstash:
           else if "ASM" in [telemetryEventCategory] {
               date {
                   match => [ "[date_time]","MMM d, yyyy @ HH:mm:ss.SSS" ]
+                  target => "@timestamp"
                   #target => "[date_time]"
                   timezone => "UTC"
               }
@@ -632,6 +640,7 @@ logstash:
           else if "APM" in [telemetryEventCategory] {
               date {
                   match => [ "[f5telemetry_timestamp]", "ISO8601"]
+                  target => "@timestamp"
                   #target => "[f5telemetry_timestamp]"
                   timezone => "UTC"
               }
@@ -653,6 +662,7 @@ logstash:
           else if "AVR" in [telemetryEventCategory] {
               date {
                   match => [ "[EOCTimestamp]","UNIX" ]
+                  target => "@timestamp"
                   #target => "[EOCTimestamp]"
                   timezone => "UTC"
               }
@@ -711,6 +721,7 @@ logstash:
       output {
           elasticsearch {
               hosts => ["http://elasticsearch-master:9200"]
+              data_stream => false
               index => "f5-ts-%{[@metadata][target_index]}"
           }
       }
