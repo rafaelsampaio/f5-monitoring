@@ -794,28 +794,28 @@ grafana:
           database: "f5-ts-ltm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "event_timestamp"
+            timeField: "@timestamp"
         - name: Elasticsearch-TS-afm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-afm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "date_time"
+            timeField: "@timestamp"
         - name: Elasticsearch-TS-asm
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-asm-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "date_time"
+            timeField: "@timestamp"
         - name: Elasticsearch-TS-avr
           type: elasticsearch
           url: http://elasticsearch-master:9200
           database: "f5-ts-avr-*"
           jsonData:
             esVersion: "7.10+"
-            timeField: "EOCTimestamp"
+            timeField: "@timestamp"
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
